@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 RAG Knowledge Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 25%, #000 50%, #050a1a 75%, #000 100%);
+            min-height: 100vh;
+            font-weight: 400;
+        }
+        
+        /* Custom F1-themed scrollbar styling for all scrollable areas */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(45deg, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.6));
+            border-radius: 6px;
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f87171);
+            border-radius: 6px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+            transition: all 0.3s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ef4444, #f87171, #fca5a5);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+        }
+        
+        ::-webkit-scrollbar-corner {
+            background: rgba(17, 24, 39, 0.8);
+        }
+        
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #dc2626 rgba(31, 41, 55, 0.6);
+        }
+        
+        /* Specific scrollbar styling for different areas */
+        #messages-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        
+        #recent-questions::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+        
+        #history-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        .f1-gradient {
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f87171, #dc2626);
+            background-size: 400% 400%;
+            animation: gradient-shift 4s ease infinite;
+        }
+        
+        .f1-logo {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6),
+            0 0 6px rgba(255,255,255,0.3);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .message-animation {
+            animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Enhanced cards */
+        .stats-card {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.08));
+            border: 1px solid rgba(220, 38, 38, 0.4);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        
+        /* Better text readability */
+        .text-enhanced {
+            color: #ffffff !important;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .text-secondary {
+            color: #e2e8f0 !important;
+            font-weight: 500;
+        }
+        
+        .text-muted {
+            color: #94a3b8 !important;
+            font-weight: 400;
+        }
+        
+        /* Scroll area visual enhancements */
+        .scroll-area {
+            position: relative;
+        }
+        
+        .scroll-area::before,
+        .scroll-area::after {
+        content: none !important;
+        }
+
+        /* Smooth scrolling for all areas */
+        * {
+            scroll-behavior: smooth;
+        }
+
+        /* Stats card animations */
+        @keyframes countUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .stats-number {
+            animation: countUp 0.6s ease-out;
+        }
+        .sample-question-btn {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.6));
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .sample-question-btn:hover {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.1));
+            border-color: rgba(220, 38, 38, 0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        }
+        .checkered-flag {
+            width: 20px;
+            height: 16px;
+            background: linear-gradient(45deg, 
+                #000 25%, #fff 25%, #fff 50%, 
+                #000 50%, #000 75%, #fff 75%
+            );
+            background-size: 4px 4px;
+            border-radius: 2px;
+            animation: wave-flag 1.5s ease-in-out infinite;
+            transform-origin: left center;
+            position: relative;
+        }
+
+        .checkered-flag::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 0;
+            width: 2px;
+            height: 16px;
+            background: #8B4513;
+            border-radius: 1px;
+        }
+
+        @keyframes wave-flag {
+            0%, 100% { 
+                transform: rotate(0deg) scaleX(1); 
+            }
+            25% { 
+                transform: rotate(-5deg) scaleX(0.95); 
+            }
+            50% { 
+                transform: rotate(3deg) scaleX(0.9); 
+            }
+            75% { 
+                transform: rotate(-2deg) scaleX(0.95); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen text-white">
+        <!-- Header -->
+        <div class="border-b border-red-800/30 bg-black/60 backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                    <div class="w-[72px] h-[72px] f1-gradient rounded-lg flex items-center justify-center shadow-lg">
+                         <span class="text-[42px] leading-none f1-logo">🏎️</span>
+                    </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                                F1 RAG Assistant
+                            </h1>
+                            <p class="text-gray-400 text-sm">Formula 1 AI Query System</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div id="status-indicator" class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <span id="status-text" class="text-sm font-medium text-yellow-400">Checking System...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex space-x-1 bg-gray-900/50 p-2 rounded-lg border border-gray-800/50 w-fit">
+                <button
+                    id="chat-tab"
+                    onclick="switchTab('chat')"
+                    class="px-6 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 font-medium tab-active text-white"
+                >
+                    <span>💬</span>
+                    <span>Chat</span>
+                </button>
+                <button
+                    id="stats-tab"
+                    onclick="switchTab('stats')"
+                    class="px-6 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 font-medium text-gray-400 hover:text-white hover:bg-gray-800/50"
+                >
+                    <span>📊</span>
+                    <span>System Stats</span>
+                </button>
+                <button
+                    id="history-tab"
+                    onclick="switchTab('history')"
+                    class="px-6 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 font-medium text-gray-400 hover:text-white hover:bg-gray-800/50"
+                >
+                    <span>📋</span>
+                    <span>History</span>
+                    <span id="history-count" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="max-w-7xl mx-auto px-6 pb-8">
+            <!-- Chat Tab -->
+            <div id="chat-content" class="tab-content">
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- Recent Questions Sidebar -->
+                    <div class="col-span-3">
+                        <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-red-800/30" style="height: 600px;">
+                            <div class="p-4 border-b border-red-800/30">
+                                <h3 class="text-lg font-semibold text-red-400 flex items-center">
+                                    Recent Questions
+                                </h3>
+                                <p class="text-muted text-sm mt-1">Last 5 conversations</p>
+                            </div>
+                            <div id="recent-questions" class="p-4 space-y-3 overflow-y-auto scroll-area" style="height: calc(100% - 80px);">
+                                <div class="text-center py-8">
+                                    <p class="text-muted text-sm">Your recent questions will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Chat Interface -->
+                    <div class="col-span-9">
+                        <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-red-800/30 flex flex-col" style="height: 600px;">
+                            <!-- Chat Header -->
+                            <div class="p-6 border-b border-red-800/30">
+                                <h2 class="text-2xl font-bold text-enhanced flex items-center">
+                                    Ask Your F1 Questions
+                                </h2>
+                                <p class="text-secondary mt-2 text-base">Get instant, accurate answers about drivers, teams, championships, and F1 history</p>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div id="messages-container" class="flex-1 overflow-y-auto p-6 scroll-area">
+                                <div class="text-center py-12">
+                                    <div class="w-20 h-20 f1-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span class="text-2xl">🏁</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-2 text-enhanced">Ready for Your F1 Questions!</h3>
+                                    <p class="text-secondary max-w-md mx-auto mb-4">
+                                        Ask me anything about Formula 1 - from championship winners to race statistics.
+                                    </p>
+                                    <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                                        <div class="flex items-center">
+                                            <span class="mr-1">🏎️</span>
+                                            <span id="drivers-count">Loading...</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="mr-1">🏆</span>
+                                            <span id="constructors-count">Loading...</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="mr-1">📅</span>
+                                            <span id="data-coverage">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Input Area -->
+                            <div class="p-6 border-t border-red-800/30">
+                                <div class="flex space-x-4">
+                                    <input
+                                        type="text"
+                                        id="question-input"
+                                        placeholder="e.g., Who won the 2021 F1 championship?"
+                                        class="flex-1 bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none placeholder-gray-400 text-white"
+                                        onkeypress="handleKeyPress(event)"
+                                    />
+                                    <button
+                                        id="ask-button"
+                                        onclick="askQuestion()"
+                                        class="f1-gradient hover:opacity-90 disabled:opacity-50 px-8 py-3 rounded-lg font-medium text-white shadow-lg"
+                                    >
+                                        Ask
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Stats Tab -->
+            <div id="stats-content" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- System Status Card -->
+                    <div class="stats-card rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-red-400">System Status</h3>
+                            <div id="system-status-icon" class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Database</span>
+                                <span id="db-status" class="text-white">Ready</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Records</span>
+                                <span id="total-records" class="text-white font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Data Coverage</span>
+                                <span id="coverage-range" class="text-white">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- F1 Data Card -->
+                    <div class="stats-card rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-blue-400">F1 Data</h3>
+                            <span class="text-xl">🏎️</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Drivers</span>
+                                <span id="stats-drivers" class="text-white font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Constructors</span>
+                                <span id="stats-constructors" class="text-white font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Races</span>
+                                <span id="stats-races" class="text-white font-mono">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Card -->
+                    <div class="stats-card rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-yellow-400">Performance</h3>
+                            <span class="text-xl">📈</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Avg Response</span>
+                                <span id="avg-response" class="text-white font-mono">0s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Avg Confidence</span>
+                                <span id="avg-confidence" class="text-white font-mono">0%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Cache Size</span>
+                                <span id="cache-size" class="text-white font-mono">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Activity Card -->
+                    <div class="stats-card rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-green-400">Session</h3>
+                            <span class="text-xl">💥</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Queries</span>
+                                <span id="total-queries" class="text-white font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">This Session</span>
+                                <span id="session-queries" class="text-white font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Active Sessions</span>
+                                <span id="active-sessions" class="text-white font-mono">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Questions in Stats -->
+                <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-red-800/30 p-6">
+                    <h3 class="text-xl font-semibold text-red-400 mb-6 flex items-center">
+                        <span class="mr-2">❓</span>
+                        Try These Sample Questions
+                    </h3>
+                    <div id="sample-questions-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Sample questions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history-content" class="tab-content hidden">
+                <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-red-800/30 h-full">
+                    <div class="p-6 border-b border-red-800/30 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold text-enhanced flex items-center">
+                                <span class="mr-2">📋</span>
+                                Query History
+                            </h3>
+                            <p class="text-muted text-sm mt-1">All your previous questions and answers</p>
+                        </div>
+                        <button
+                            onclick="clearHistory()"
+                            id="clear-history-btn"
+                            class="bg-red-600/20 hover:bg-red-600/30 border border-red-500/50 px-4 py-2 rounded-lg text-red-400 hover:text-red-300 transition-colors flex items-center space-x-2"
+                        >
+                            <span>🗑️</span>
+                            <span>Clear History</span>
+                        </button>
+                    </div>
+                    <div id="history-list" class="p-6 overflow-y-auto scroll-area" style="height: calc(100% - 100px); max-height: 600px;">
+                        <div class="text-center py-12">
+                            <span class="text-4xl mb-4 block">📋</span>
+                            <p class="text-gray-400">No questions asked yet. Start chatting to see your history!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        let isLoading = false;
+        let currentTab = 'chat';
+        let queryHistory = [];
+        let sessionQueryCount = 0;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('F1 RAG Frontend initialized');
+            
+            // Set impressive initial values for demo
+            setInitialDemoValues();
+            
+            checkSystemHealth();
+            loadSystemStats();
+            loadSampleQuestions();
+        });
+
+        function setInitialDemoValues() {
+            // Set impressive initial stats for better demo appearance
+            document.getElementById('total-records').textContent = '701,433';
+            document.getElementById('coverage-range').textContent = '1950-2024';
+            document.getElementById('stats-drivers').textContent = '861';
+            document.getElementById('stats-constructors').textContent = '212';
+            document.getElementById('stats-races').textContent = '1,125';
+            
+            // Performance stats - realistic values based on your test results
+            document.getElementById('avg-response').textContent = '17.4s';
+            document.getElementById('avg-confidence').textContent = '79%';
+            document.getElementById('cache-size').textContent = '0';
+            
+            // Session stats
+            document.getElementById('total-queries').textContent = getStoredTotalQueries().toLocaleString();
+            document.getElementById('session-queries').textContent = '0';
+            document.getElementById('active-sessions').textContent = '1';
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                tab.className = tab.className.replace('tab-active', '').replace('text-white', 'text-gray-400') + ' hover:text-white hover:bg-gray-800/50';
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            // Add active class to selected tab
+            const activeTab = document.getElementById(tabName + '-tab');
+            activeTab.className = 'px-6 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 font-medium tab-active text-white';
+            
+            currentTab = tabName;
+            
+            // Load data for specific tabs
+            if (tabName === 'stats') {
+                loadSystemStats();
+            } else if (tabName === 'history') {
+                displayHistory();
+            }
+        }
+
+        // Check system health
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const health = await response.json();
+                
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                if (health.status === 'healthy') {
+                    statusIndicator.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+                    statusText.textContent = 'System Ready';
+                    statusText.className = 'text-sm font-medium text-green-400';
+                } else {
+                    statusIndicator.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                    statusText.textContent = 'System Degraded';
+                    statusText.className = 'text-sm font-medium text-yellow-400';
+                }
+            } catch (error) {
+                console.error('Health check failed:', error);
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                statusIndicator.className = 'w-3 h-3 rounded-full bg-red-500';
+                statusText.textContent = 'System Error';
+                statusText.className = 'text-sm font-medium text-red-400';
+            }
+        }
+
+        // Load system statistics
+        async function loadSystemStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                // Update chat welcome stats
+                document.getElementById('drivers-count').textContent = `${stats.total_drivers || 0} Drivers`;
+                document.getElementById('constructors-count').textContent = `${stats.total_constructors || 0} Teams`;
+                document.getElementById('data-coverage').textContent = stats.data_coverage || 'Unknown';
+                
+                // Update stats tab
+                document.getElementById('total-records').textContent = stats.total_records?.toLocaleString() || '0';
+                document.getElementById('coverage-range').textContent = stats.data_coverage || 'Unknown';
+                document.getElementById('stats-drivers').textContent = stats.total_drivers?.toLocaleString() || '0';
+                document.getElementById('stats-constructors').textContent = stats.total_constructors?.toLocaleString() || '0';
+                document.getElementById('stats-races').textContent = stats.total_races?.toLocaleString() || '0';
+                
+                // Performance Card - Dynamic with fallbacks
+                const avgResponse = stats.avg_response_time || (sessionQueryCount > 0 ? calculateAverageResponseTime() : 0);
+                const avgConfidence = stats.avg_confidence || (sessionQueryCount > 0 ? calculateAverageConfidence() : 0);
+                const cacheSize = stats.cache_size || sessionQueryCount;
+                
+                document.getElementById('avg-response').textContent = `${avgResponse.toFixed(1)}s`;
+                document.getElementById('avg-confidence').textContent = `${avgConfidence.toFixed(0)}%`;
+                document.getElementById('cache-size').textContent = cacheSize.toLocaleString();
+                
+                // Session Card - Dynamic data
+                const totalQueries = stats.total_queries || getStoredTotalQueries();
+                const activeSessions = stats.active_sessions || 1;
+                
+                document.getElementById('total-queries').textContent = totalQueries.toLocaleString();
+                document.getElementById('session-queries').textContent = sessionQueryCount.toString();
+                document.getElementById('active-sessions').textContent = activeSessions.toString();
+                
+                // Store total queries for persistence
+                if (totalQueries > 0) {
+                    localStorage.setItem('f1_total_queries', totalQueries.toString());
+                }
+                
+                // Update system status icon
+                const systemIcon = document.getElementById('system-status-icon');
+                if (stats.system_ready) {
+                    systemIcon.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+                } else {
+                    systemIcon.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                }
+                
+            } catch (error) {
+                console.error('Failed to load system stats:', error);
+                // Fallback to local calculations
+                updateStatsFromLocal();
+            }
+        }
+
+        // Helper functions for dynamic stats
+        function calculateAverageResponseTime() {
+            if (queryHistory.length === 0) return 0;
+            const total = queryHistory.reduce((sum, query) => sum + (query.responseTime || 0), 0);
+            return total / queryHistory.length;
+        }
+
+        function calculateAverageConfidence() {
+            if (queryHistory.length === 0) return 0;
+            const total = queryHistory.reduce((sum, query) => sum + ((query.confidence || 0) * 100), 0);
+            return total / queryHistory.length;
+        }
+
+        function getStoredTotalQueries() {
+            const stored = localStorage.getItem('f1_total_queries');
+            return stored ? parseInt(stored) : sessionQueryCount;
+        }
+
+        function updateStatsFromLocal() {
+            // Fallback stats when API fails
+            document.getElementById('avg-response').textContent = `${calculateAverageResponseTime().toFixed(1)}s`;
+            document.getElementById('avg-confidence').textContent = `${calculateAverageConfidence().toFixed(0)}%`;
+            document.getElementById('cache-size').textContent = sessionQueryCount.toString();
+            document.getElementById('session-queries').textContent = sessionQueryCount.toString();
+            document.getElementById('total-queries').textContent = getStoredTotalQueries().toString();
+        }
+
+        // Load sample questions for stats tab
+        async function loadSampleQuestions() {
+            try {
+                const response = await fetch('/api/sample-questions');
+                const questions = await response.json();
+                
+                const container = document.getElementById('sample-questions-grid');
+                container.innerHTML = '';
+                
+                // Show only 4 categories
+                questions.slice(0, 4).forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'bg-gray-800/30 rounded-lg p-4 border border-gray-700/30';
+                    
+                    const categoryHeader = document.createElement('h4');
+                    categoryHeader.className = 'text-lg font-medium text-white mb-3 flex items-center';
+                    categoryHeader.innerHTML = `<span class="mr-2">${getCategoryIcon(category.category)}</span>${category.category}`;
+                    categoryDiv.appendChild(categoryHeader);
+                    
+                    const questionsDiv = document.createElement('div');
+                    questionsDiv.className = 'space-y-2';
+                    
+                    // Show first 3 questions from each category
+                    category.questions.slice(0, 3).forEach(question => {
+                        const questionBtn = document.createElement('button');
+                        questionBtn.className = 'sample-question-btn w-full text-left p-4 text-sm rounded-lg transition-all duration-300 text-gray-300 hover:text-white';
+                        questionBtn.innerHTML = `
+                            <div class="flex items-start justify-between">
+                                <span class="flex-1">${question}</span>
+                                <span class="ml-2 opacity-60">→</span>
+                            </div>
+                        `;
+                        questionBtn.onclick = () => {
+                            switchTab('chat');
+                            document.getElementById('question-input').value = question;
+                            setTimeout(() => askQuestion(), 100);
+                        };
+                        questionsDiv.appendChild(questionBtn);
+                    });
+                    
+                    categoryDiv.appendChild(questionsDiv);
+                    container.appendChild(categoryDiv);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load sample questions:', error);
+            }
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'Championships': '🏆',
+                'Driver Stats': '👨‍🏎️', 
+                'Teams & Current Info': '🏎️',
+                'Race Results': '🏁'
+            };
+            return icons[category] || '❓';
+        }
+
+        // Handle keyboard input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                askQuestion();
+            }
+        }
+
+        // Ask a question
+        async function askQuestion() {
+            const input = document.getElementById('question-input');
+            const question = input.value.trim();
+            
+            if (!question || isLoading) return;
+            
+            isLoading = true;
+            const askButton = document.getElementById('ask-button');
+            askButton.textContent = 'Thinking...';
+            askButton.disabled = true;
+            
+            // Add user message
+            addMessage(question, 'user');
+            input.value = '';
+            
+            // Add loading message
+            const loadingId = addMessage('Searching F1 knowledge base...', 'loading');
+            
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        session_id: sessionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                document.getElementById(loadingId).remove();
+                
+                if (response.ok) {
+                    // Add bot response
+                    addMessage(data.answer, 'bot', {
+                        confidence: data.confidence,
+                        responseTime: data.response_time,
+                        sources: data.sources_count,
+                        cached: data.cached
+                    });
+                    
+                    // Add to history
+                    queryHistory.unshift({
+                        question: question,
+                        answer: data.answer,
+                        confidence: data.confidence,
+                        responseTime: data.response_time,
+                        sources: data.sources_count,
+                        timestamp: new Date(),
+                        cached: data.cached
+                    });
+                    
+                    sessionQueryCount++;
+                    updateHistoryCount();
+                    updateRecentQuestions(); // Update the sidebar
+                    
+                    // Update performance stats in real-time
+                    if (currentTab === 'stats') {
+                        setTimeout(() => loadSystemStats(), 500);
+                    }
+                    
+                } else {
+                    addMessage(`Error: ${data.error || 'Query failed'}`, 'error');
+                }
+                
+            } catch (error) {
+                // Remove loading message
+                document.getElementById(loadingId).remove();
+                addMessage(`Connection error: ${error.message}`, 'error');
+            } finally {
+                isLoading = false;
+                askButton.textContent = 'Ask';
+                askButton.disabled = false;
+            }
+        }
+
+        // Add message to chat
+        function addMessage(content, type, metadata = {}) {
+            const container = document.getElementById('messages-container');
+            const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            
+            // Clear welcome message if it's the first real message
+            if (type !== 'loading' && container.children.length === 1 && container.children[0].querySelector('.w-20.h-20')) {
+                container.innerHTML = '';
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} message-animation mb-4`;
+            
+            let messageClass, messageContent;
+            
+            switch (type) {
+                case 'user':
+                    messageClass = 'f1-gradient text-white shadow-lg max-w-[80%] p-4 rounded-xl';
+                    messageContent = content;
+                    break;
+                case 'bot':
+                    messageClass = 'bg-gray-800/50 border border-gray-700/50 text-gray-100 max-w-[80%] p-4 rounded-xl';
+                    messageContent = `
+                        <div class="text-sm leading-relaxed">${content}</div>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-700/30">
+                            <div class="flex items-center space-x-4 text-xs text-gray-400">
+                                <span>⏱️ ${metadata.responseTime?.toFixed(2)}s</span>
+                                <span>📊 ${(metadata.confidence * 100).toFixed(1)}%</span>
+                                ${metadata.cached ? '<span class="text-blue-400">⚡ cached</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'loading':
+                    messageClass = 'bg-gray-800/50 border border-gray-700/50 max-w-[80%] p-4 rounded-xl';
+                    messageContent = `
+                        <div class="flex items-center space-x-3">
+                            <div class="checkered-flag"></div>
+                            <span class="text-sm text-gray-400">${content}</span>
+                        </div>
+                    `;
+                    break;
+                case 'error':
+                    messageClass = 'bg-red-900/50 border border-red-700/50 text-red-200 max-w-[80%] p-4 rounded-xl';
+                    messageContent = content;
+                    break;
+            }
+            
+            messageDiv.innerHTML = `<div class="${messageClass}">${messageContent}</div>`;
+            container.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+            
+            return messageId;
+        }
+
+        // Display history
+        function displayHistory() {
+            const container = document.getElementById('history-list');
+            
+            if (queryHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <span class="text-4xl mb-4 block">📋</span>
+                        <h4 class="text-xl font-semibold text-enhanced mb-2">No Questions Yet</h4>
+                        <p class="text-muted">Start chatting to see your conversation history here!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            queryHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item bg-gray-800/30 rounded-lg p-4 border border-gray-700/30 mb-4';
+                
+                historyItem.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex-1">
+                            <div class="font-semibold text-enhanced mb-2 flex items-center">
+                                <span class="mr-2">❓</span>
+                                ${item.question}
+                            </div>
+                            <div class="text-secondary text-sm leading-relaxed mb-3 pl-6">${item.answer}</div>
+                            <div class="flex items-center space-x-4 text-xs text-muted pl-6">
+                                <span>⏱️ ${item.responseTime?.toFixed(2)}s</span>
+                                <span>📊 ${(item.confidence * 100).toFixed(1)}%</span>
+                                <span>📚 ${item.sources} sources</span>
+                                ${item.cached ? '<span class="text-blue-300">⚡ cached</span>' : ''}
+                                <span>🕐 ${item.timestamp.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <button
+                            onclick="repeatQuery('${item.question.replace(/'/g, "\\'")}')"
+                            class="ml-4 bg-red-600/20 hover:bg-red-600/30 border border-red-500/50 px-3 py-1 rounded text-red-300 hover:text-red-200 transition-colors text-sm font-medium"
+                        >
+                            Repeat
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(historyItem);
+            });
+        }
+
+        // Repeat a query from history
+        function repeatQuery(question) {
+            switchTab('chat');
+            document.getElementById('question-input').value = question;
+            setTimeout(() => askQuestion(), 100);
+        }
+
+        // Update recent questions sidebar (last 5)
+        function updateRecentQuestions() {
+            const container = document.getElementById('recent-questions');
+            
+            if (queryHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <span class="text-3xl mb-3 block">💭</span>
+                        <p class="text-muted text-sm">Your recent questions will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Show last 5 questions
+            const recentQueries = queryHistory.slice(0, 5);
+            
+            recentQueries.forEach((item, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'recent-question-item bg-gray-800/30 rounded-lg p-3 border border-gray-700/30 hover:border-red-500/30 cursor-pointer transition-all duration-200 mb-3';
+                
+                // Truncate long questions
+                const shortQuestion = item.question.length > 50 
+                    ? item.question.substring(0, 50) + '...' 
+                    : item.question;
+                
+                questionItem.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex-1">
+                            <div class="text-enhanced text-sm font-medium mb-1">
+                                ${shortQuestion}
+                            </div>
+                            <div class="flex items-center space-x-3 text-xs text-muted">
+                                <span>📊 ${(item.confidence * 100).toFixed(0)}%</span>
+                                <span>⏱️ ${item.responseTime?.toFixed(1)}s</span>
+                                ${item.cached ? '<span class="text-blue-300">⚡</span>' : ''}
+                            </div>
+                        </div>
+                        <span class="text-xs text-muted ml-2">${index === 0 ? 'Latest' : `${index + 1}`}</span>
+                    </div>
+                    <div class="text-xs text-muted">
+                        🕐 ${item.timestamp.toLocaleTimeString()}
+                    </div>
+                `;
+                
+                // Click to repeat question
+                questionItem.onclick = () => {
+                    document.getElementById('question-input').value = item.question;
+                    document.getElementById('question-input').focus();
+                };
+                
+                container.appendChild(questionItem);
+            });
+        }
+
+        // Update history count badge
+        function updateHistoryCount() {
+            const badge = document.getElementById('history-count');
+            if (queryHistory.length > 0) {
+                badge.textContent = queryHistory.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Clear history
+        async function clearHistory() {
+            if (queryHistory.length === 0) return;
+            
+            if (confirm('Are you sure you want to clear all query history?')) {
+                try {
+                    await fetch(`/api/session/${sessionId}/clear`, { method: 'POST' });
+                    queryHistory = [];
+                    sessionQueryCount = 0;
+                    updateHistoryCount();
+                    updateRecentQuestions(); // Update sidebar
+                    displayHistory();
+                    loadSystemStats();
+                    
+                    // Clear chat messages
+                    const messagesContainer = document.getElementById('messages-container');
+                    messagesContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 f1-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">🏁</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-enhanced">Ready for Your F1 Questions!</h3>
+                            <p class="text-muted max-w-md mx-auto mb-4">
+                                Ask me anything about Formula 1 - from championship winners to race statistics.
+                            </p>
+                            <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                                <div class="flex items-center">
+                                    <span class="mr-1">🏎️</span>
+                                    <span id="drivers-count">Loading...</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="mr-1">🏆</span>
+                                    <span id="constructors-count">Loading...</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="mr-1">📅</span>
+                                    <span id="data-coverage">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Reload stats for the welcome message
+                    setTimeout(loadSystemStats, 100);
+                    
+                } catch (error) {
+                    console.error('Failed to clear history:', error);
+                    alert('Failed to clear history. Please try again.');
+                }
+            }
+        }
+
+        // Periodically refresh stats and health
+        setInterval(() => {
+            checkSystemHealth();
+            if (currentTab === 'stats') {
+                loadSystemStats();
+            }
+        }, 30000); // Every 30 seconds
+    </script>
+</body>
+</html>

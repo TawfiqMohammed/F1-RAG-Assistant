@@ -1,0 +1,40 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+*.secret
+
+# Logs
+*.log
+
+# Databases
+*.db
+chroma_db/
+
+# LM Studio / Model cache
+*.bin
+*.gguf
+
+# Build / distribution
+build/
+dist/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
