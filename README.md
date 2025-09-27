@@ -2,10 +2,6 @@
 
 A **Formula 1 Retrieval-Augmented Generation (RAG) System** built for speed, accuracy, and simplicity. It features advanced **hybrid search**, seamless integration with local Large Language Models (LLMs) via **LM Studio**, and a sleek, F1-themed web interface.
 
-https://github.com/user-attachments/assets/b3593bfd-42fd-45b9-87a3-e6754ef23e9b
-
----
-
 ## ✨ Features
 
 - 🔍 **Hybrid Search**: Combines **Vector Embeddings** (Sentence-Transformers: `all-MiniLM-L6-v2`) and **BM25** for optimal, high-recall document retrieval.
@@ -15,11 +11,7 @@ https://github.com/user-attachments/assets/b3593bfd-42fd-45b9-87a3-e6754ef23e9b
 - 📊 **System Analytics**: Provides real-time metrics on response time, LLM confidence, and query type statistics.
 - ⚡ **Production-Ready**: Utilizes a robust architecture with a **SQLite database** for persistent storage, comprehensive error handling, and structured logging.
 
----
-
 ## 🖼️ Screenshots & Demo
-
-A picture is worth a thousand words—showcasing the application's sleek F1-themed design and core functionality.
 
 | Feature | Description | Screenshot/GIF |
 | :--- | :--- | :--- |
@@ -28,6 +20,8 @@ A picture is worth a thousand words—showcasing the application's sleek F1-them
 | **System Statistics** | A snapshot of the `Stats` tab showing system health and data coverage. | <img width="400" alt="System-Status" src="https://github.com/user-attachments/assets/4d302f3f-2166-4042-935f-80796ce18de7" /> |
 | **Conversation History**| A tab displaying past queries for the current session. | <img width="400" alt="System-History" src="https://github.com/user-attachments/assets/055d05dc-a509-4897-99e6-b22772d46484" /> |
 
+## 📽️ Demo Video:
+https://github.com/user-attachments/assets/b3593bfd-42fd-45b9-87a3-e6754ef23e9b
 
 ## 🚀 Quick Start
 
@@ -77,8 +71,6 @@ Open your web browser and navigate to the application frontend:
 
 👉 **http://localhost:5000**
 
------
-
 ## 🏗️ Architecture
 
 The system uses a clean, modular structure, consolidating core logic into four main files for maximum clarity and maintainability.
@@ -113,8 +105,6 @@ The data flow follows a standard RAG pattern:
                    └────────────────┘
 ```
 
------
-
 ## ⚙️ Configuration
 
 All major settings are managed centrally in **`config.py`** and can be overridden using environment variables.
@@ -143,8 +133,6 @@ Try these example questions in the UI:
 | 📅 **Races** | "Who won the last Italian GP?" |
 | 🧠 **Current Info** | "Current Red Bull drivers" |
 
------
-
 ## 🛠️ API Endpoints
 
 The Flask application exposes a RESTful API for all core functionality.
@@ -158,8 +146,6 @@ The Flask application exposes a RESTful API for all core functionality.
 | `/api/session/{id}/history` | `GET` | Retrieves the query history for a specific session ID. |
 | `/api/session/{id}/clear` | `POST` | Clears the query history for a specific session ID. |
 | `/api/sample-questions` | `GET` | Returns the list of example queries. |
-
------
 
 ## 🤝 Contributing
 
