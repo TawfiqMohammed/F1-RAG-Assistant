@@ -1,299 +1,160 @@
-# F1 RAG Knowledge Assistant - Simplified Structure
+I see you want the complete, structured README.md in Markdown format.
 
-A production-ready Formula 1 RAG (Retrieval-Augmented Generation) system with advanced search capabilities and a modern web interface. **All original functionality preserved** in a cleaner, more maintainable structure.
+Here is the final version, including placeholders for screenshots and the demo link as discussed.
 
-## 🏁 Features
+🏎️ F1 RAG Knowledge Assistant
+A production-ready Formula 1 Retrieval-Augmented Generation (RAG) System built for speed, accuracy, and simplicity. It features advanced hybrid search, seamless integration with local Large Language Models (LLMs) via LM Studio, and a sleek, F1-themed web interface.
 
-- **Hybrid Search**: Combines vector embeddings and BM25 for optimal retrieval
-- **Comprehensive F1 Data**: Drivers, constructors, races, championships (1950-2024)
-- **Modern UI**: F1-themed interface with real-time chat and query history
-- **Session Management**: Track queries across sessions with history
-- **Performance Analytics**: Detailed system statistics and monitoring
-- **Production Ready**: SQLite database, proper error handling, logging
+✨ Features
+🔍 Hybrid Search: Combines Vector Embeddings (Sentence-Transformers) and BM25 for optimal, high-recall document retrieval.
 
-## 📁 Simplified File Structure
+🏁 Comprehensive F1 Data: Covers drivers, constructors, races, and championships from 1950 to 2024 (861 drivers, 212 teams, 1,100+ races).
 
-```
-f1-rag-system/
-├── app.py                 # Main Flask application
-├── f1_rag.py             # Complete RAG system (consolidated)
-├── config.py             # Configuration settings
-├── requirements.txt       # Dependencies
-├── index.html            # Frontend (single file)
-├── data/                 # F1 CSV files
-├── logs/                 # Application logs
-├── f1_rag.db            # SQLite database
-└── README.md            # This file
-```
+🎨 Modern UI: F1-inspired, single-page web interface with real-time chat, a session history tracker, and responsive design.
 
-**Consolidation Benefits:**
-- ✅ **4 main files** instead of 8+ 
-- ✅ **Single RAG class** with all functionality
-- ✅ **Simplified imports** and dependencies
-- ✅ **Easier development** and maintenance
-- ✅ **All features preserved** from original version
+📂 Session Management: Tracks conversations by session, allowing users to review and repeat past queries.
 
-## 🚀 Quick Start
+📊 System Analytics: Provides real-time metrics on response time, LLM confidence, and query type statistics.
 
-### 1. Install Dependencies
-```bash
+⚡ Production-Ready: Utilizes a robust architecture with a SQLite database for persistent storage, comprehensive error handling, and structured logging.
+
+🖼️ Screenshots & Demo
+A picture is worth a thousand words—showcasing the application's sleek F1-themed design and core functionality.
+
+Feature	Description	Screenshot/GIF
+Main Chat Interface	The primary user interface for asking F1 questions.	[Insert Screenshot 1: Main Chat UI (e.g., asking "Who won the 2021 F1 championship?") ]
+Search & Response	A view showing a detailed answer, confidence score, and response time.	[Insert Screenshot 2: Detailed Answer with Metadata (Confidence, Response Time, Sources)]
+System Statistics	A screenshot of the Stats tab showing system health and data coverage.	[Insert Screenshot 3: Stats Tab (Data Coverage, Health Check)]
+Conversation History	The sidebar displaying past queries for the current session.	[Insert Screenshot 4: Session History (Sidebar)]
+
+Export to Sheets
+🎥 Demo Video:
+[Insert Link to a short Demo Video/GIF here (e.g., YouTube or a direct GIF link)]
+
+🚀 Quick Start
+Follow these steps to get the F1 RAG Knowledge Assistant running locally.
+
+1. Project Setup
+Clone the repository and install the required dependencies:
+
+Bash
+
+# Clone the repository (assuming a GitHub project)
+git clone <YOUR_REPO_URL>
+cd f1-rag-assistant
+
+# Install dependencies
 pip install -r requirements.txt
-```
+2. (Optional) Add Data
+The system is configured to work with the Ergast F1 API CSV data.
 
-### 2. Setup Data (Optional)
-- Download F1 CSV files from [Ergast API](https://ergast.com/mrd/db/)
-- Place them in the `data/` directory
-- **Note**: System works with comprehensive sample data if CSV files are not available
+Download the necessary CSV files (e.g., drivers.csv, races.csv, results.csv, etc.) from a source like the Ergast API dumps.
 
-### 3. Start LM Studio (for LLM integration)
-- Download and run [LM Studio](https://lmstudio.ai/)
-- Load a model (recommend llama-3.2-3b-instruct)
-- Start local server on port 1234
-- **Note**: System provides fallback responses if LM Studio is unavailable
+Place these files inside the data/ directory.
 
-### 4. Run the System
-```bash
+Note: If you skip this step, the system will run with a set of built-in sample data for basic functionality.
+
+3. Run the LLM Server (LM Studio)
+The RAG system is designed to use a local LLM API for zero-cost, private inference.
+
+Download and install LM Studio.
+
+Load a suitable model.
+
+Recommended Model: llama-3.2-3b-instruct (Configured in config.py)
+
+Navigate to the Local Inference Server tab.
+
+Start the server on the default host and port: http://localhost:1234.
+
+4. Start the Application
+Execute the main Flask application file:
+
+Bash
+
 python app.py
-```
+5. Access the UI
+Open your web browser and navigate to the application frontend:
 
-### 5. Open Browser
-- Navigate to `http://localhost:5000`
-- Start asking F1 questions!
+👉 http://localhost:5000
 
-## 🏗️ Architecture
+🏗️ Architecture
+The system uses a clean, modular structure, consolidating core logic into four main files for maximum clarity and maintainability.
 
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Frontend UI   │───▶│   Flask API      │───▶│   F1RAGSystem   │
-│                 │    │                  │    │                 │
-│ - Chat Interface│    │ - Query Handler  │    │ - Hybrid Search │
-│ - Query History │    │ - Session Mgmt   │    │ - LLM Integration│
-│ - System Stats  │    │ - Analytics      │    │ - Vector DB     │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌─────────────────┐
-                       │  SQLite DB      │
-                       │                 │
-                       │ - F1 Data       │
-                       │ - Query Logs    │
-                       │ - System Stats  │
-                       └─────────────────┘
-```
+Bash
 
-## 📊 What's Consolidated
+f1-rag-assistant/
+├── app.py           # Main Flask application, routing, and server logic.
+├── f1_rag.py        # Complete RAG system (Hybrid Search, LLM integration, DB Manager).
+├── config.py        # Centralized configuration (LLM URL, Ports, Thresholds).
+├── index.html       # Single-page frontend (HTML, Tailwind CSS, JavaScript).
+└── ...
+The data flow follows a standard RAG pattern:
 
-### Original Structure → Simplified Structure
+Markdown
 
-| **Original Files** | **New Consolidated** | **Functionality** |
-|-------------------|---------------------|------------------|
-| `database.py` + `rag_system.py` | `f1_rag.py` | All RAG functionality in one class |
-| `app.py` (complex) | `app.py` (streamlined) | Essential Flask endpoints only |
-| Multiple config files | `config.py` | Single configuration source |
-| Separate static files | `index.html` (root) | Single frontend file |
+┌───────────────┐     ┌─────────────┐     ┌────────────────┐
+│   Frontend    │────▶│   Flask API │────▶│   F1 RAG Core  │
+│ - Chat UI     │     │ - Endpoints │     │ - Hybrid Search│
+│ - History     │     │ - Sessions  │     │ - LLM + Vector │
+└───────────────┘     └─────────────┘     └────────────────┘
+           ^                 │                   │
+           └─────────────────┴───────────────────┘
+                           ▼
+                 ┌────────────────┐
+                 │   SQLite DB    │
+                 │  Drivers, Races│
+                 │  Logs, Stats   │
+                 └────────────────┘
+⚙️ Configuration
+All major settings are managed centrally in config.py and can be overridden using environment variables for deployment flexibility.
 
-### Key Consolidations Made:
+Setting	Default Value	Description
+LLM_URL	"http://localhost:1234"	Address of the local LLM inference server.
+LLM_MODEL	"llama-3.2-3b-instruct"	Model used by the LLM server.
+DATABASE_PATH	"f1_rag.db"	Path to the SQLite database file.
+DATA_PATH	"./data"	Directory for F1 data CSV files.
+TOP_K_RETRIEVAL	8	Number of documents retrieved by the Hybrid Search.
+CONFIDENCE_THRESHOLD	0.3	Minimum confidence score for a definitive answer.
+PORT	5000	Port the Flask application runs on.
 
-1. **Database + RAG System**: `F1DatabaseManager` and `F1RAGSystem` combined in `f1_rag.py`
-2. **Simplified Flask App**: Removed complex session management, kept core functionality
-3. **Single Frontend**: `index.html` serves directly from root
-4. **Unified Config**: All settings in one `config.py` file
+Export to Sheets
+💡 Sample Queries
+Try these example questions in the UI:
 
-## 🔧 API Endpoints
+Category	Example Queries
+🏆 Championships	"Who won the 2021 F1 championship?"
+👨‍🏎️ Driver Stats	"How many wins does Ayrton Senna have?"
+🏎️ Teams	"Who drives for Ferrari?"
+📅 Races	"Who won the last Italian GP?"
+🧠 Current Info	"Current Red Bull drivers"
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Serve frontend HTML |
-| `/api/query` | POST | Submit F1 questions |
-| `/api/health` | GET | System health check |
-| `/api/stats` | GET | System statistics |
-| `/api/session/{id}/history` | GET | Query history |
-| `/api/session/{id}/clear` | POST | Clear session history |
-| `/api/sample-questions` | GET | Sample questions |
+Export to Sheets
+🛠️ API Endpoints
+The Flask application exposes a RESTful API for all core functionality.
 
-## ⚙️ Configuration
+Endpoint	Method	Description
+/	GET	Serves the main frontend application (index.html).
+/api/query	POST	The main RAG endpoint for asking a question.
+/api/health	GET	Returns system health status (DB, LLM connection).
+/api/stats	GET	Returns system statistics and data coverage.
+/api/session/{id}/history	GET	Retrieves the query history for a specific session ID.
+/api/session/{id}/clear	POST	Clears the query history for a specific session ID.
+/api/sample-questions	GET	Returns the list of example queries.
 
-Edit `config.py` or set environment variables:
+Export to Sheets
+🤝 Contributing
+Contributions are welcome! Please keep the core design philosophy in mind: Keep it simple, keep it fast.
 
-```python
-# LLM Settings
-LLM_URL = "http://localhost:1234"
-LLM_MODEL = "llama-3.2-3b-instruct"
+Fork the repository.
 
-# Database
-DATABASE_PATH = "f1_rag.db"
-DATA_PATH = "data/"
+Create your feature branch (git checkout -b feature/AmazingFeature).
 
-# Performance
-TOP_K_RETRIEVAL = 8
-CONFIDENCE_THRESHOLD = 0.3
+Commit your changes (git commit -m 'Add some AmazingFeature').
 
-# Flask
-HOST = "127.0.0.1"
-PORT = 5000
-DEBUG = True
-```
+Push to the branch (git push origin feature/AmazingFeature).
 
-## 🎯 Sample Queries
+Open a Pull Request.
 
-Try these questions to test the system:
-
-### Championships
-- "Who won the 2021 F1 championship?"
-- "Who was the 2020 world champion?"
-- "Who won the 1987 championship?" 
-- "First F1 champion ever?"
-
-### Driver Stats
-- "How many wins does Lewis Hamilton have?"
-- "Max Verstappen career statistics"
-- "Who has the most race wins?"
-
-### Current Info
-- "Who drives for Ferrari?"
-- "Current Red Bull drivers"
-- "Mercedes current lineup"
-
-### Race Results
-- "Who won the last Monaco Grand Prix?"
-- "2023 Italian Grand Prix winner"
-
-## 🧠 Technical Details
-
-### RAG System Components
-
-1. **Data Processing**: Automatic CSV loading and cleaning
-2. **Knowledge Base**: Driver profiles, constructor data, championship records
-3. **Hybrid Search**: Vector similarity + BM25 ranking
-4. **Query Classification**: Intelligent query type detection
-5. **LLM Integration**: LM Studio with fallback responses
-6. **Caching**: Query result caching for performance
-
-### Database Schema
-
-- **F1 Tables**: drivers, constructors, races, results, standings
-- **System Tables**: query_analytics, system_stats
-- **Indexes**: Performance optimization for common queries
-
-### Frontend Features
-
-- **Real-time Chat**: Instant F1 question answering
-- **Query History**: Session-based conversation tracking
-- **System Stats**: Live performance monitoring
-- **Sample Questions**: Guided query examples
-- **F1 Theme**: Racing-inspired UI design
-
-## 🔍 What's Preserved
-
-**All functionality from the original complex structure:**
-
-✅ Complete database management with error handling  
-✅ Hybrid search (Vector + BM25)  
-✅ Query classification and preprocessing  
-✅ LLM integration with fallbacks  
-✅ Comprehensive F1 sample data  
-✅ Session management and history  
-✅ Performance analytics and caching  
-✅ Modern F1-themed UI  
-✅ Real-time system monitoring  
-✅ Production logging and error handling  
-
-## 🚀 Development
-
-### Adding New Features
-
-1. **New Query Types**: Add to `QueryType` enum in `f1_rag.py`
-2. **Database Tables**: Extend schema in `_create_tables()` method
-3. **API Endpoints**: Add routes to `app.py`
-4. **Frontend Features**: Modify `index.html`
-
-### Performance Tuning
-
-- Adjust `TOP_K_RETRIEVAL` for search results
-- Modify `CONFIDENCE_THRESHOLD` for answer quality
-- Update `LLM_MAX_TOKENS` for response length
-- Configure caching strategies in `f1_rag.py`
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**LM Studio Connection Failed**
-- Ensure LM Studio is running on port 1234
-- System provides fallback responses automatically
-
-**Data Loading Errors**
-- Check CSV files in `data/` directory
-- System works with built-in sample data
-
-**Frontend Not Loading**
-- Ensure `index.html` is in project root
-- Check Flask server logs for errors
-
-**Database Issues**
-- Delete `f1_rag.db` to reset database
-- Check file permissions in project directory
-
-## 📈 Performance
-
-**Typical Response Times:**
-- Simple queries: 0.5-1.5 seconds
-- Complex searches: 1-3 seconds
-- Cached results: <0.1 seconds
-
-**Memory Usage:**
-- Base system: ~200MB
-- With embeddings: ~500MB
-- Full CSV data: ~1GB
-
-## 🧪 Testing
-
-```bash
-# Test the system with sample queries
-python -c "
-from f1_rag import F1RAGSystem
-rag = F1RAGSystem()
-result = rag.query('Who won the 2021 F1 championship?')
-print(f'Answer: {result.answer}')
-print(f'Confidence: {result.confidence:.2f}')
-"
-```
-
-## 📝 Migration from Original Structure
-
-If migrating from the original complex structure:
-
-1. **Backup** your existing system
-2. **Copy data files** to new `data/` directory  
-3. **Transfer configuration** to new `config.py`
-4. **Run new system** - all functionality preserved
-5. **Verify queries** work as expected
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Make changes (maintain single-file simplicity)
-4. Test thoroughly
-5. Submit pull request
-
-## 📄 License
-
-MIT License - Feel free to use for your projects!
-
----
-
-## 💡 Why This Structure?
-
-**The original structure was excellent but over-engineered for most use cases. This simplified version:**
-
-- ✅ **Reduces complexity** without losing functionality
-- ✅ **Faster development** with fewer moving parts  
-- ✅ **Easier debugging** with consolidated components
-- ✅ **Better maintainability** with clearer structure
-- ✅ **Same performance** with optimized code paths
-- ✅ **All features intact** from the original system
-
-**Perfect for:** Production deployment, learning RAG systems, F1 enthusiasts, AI projects
-
-**Result:** A powerful, production-ready F1 RAG system that's actually simple to understand and maintain! 🏎️💨
+📄 License
+Distributed under the MIT License. See the LICENSE file for more information.
