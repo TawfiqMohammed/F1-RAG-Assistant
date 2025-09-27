@@ -21,8 +21,10 @@ Thumbs.db
 # Logs
 *.log
 
-# Databases
+# SQLite DB + journal files
 *.db
+*.db-shm
+*.db-wal
 chroma_db/
 
 # LM Studio / Model cache
